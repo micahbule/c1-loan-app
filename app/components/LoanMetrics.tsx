@@ -4,6 +4,11 @@ import { getLoanApplications, LoanApplication } from "@/lib/api";
 import { computeMetric } from "@/lib/utils";
 
 export default function LoanMetrics() {
+  /**
+   * NOTE: This retrieves actual applications per status and computes the total count
+   * and value on the client side. Ideally this should be done on the server-side, but was
+   * not mentioned in the given set of requirements.
+   */
   const STATUSES = ["PENDING", "APPROVED", "REJECTED"];
   const metrics = useQueries({
     queries: STATUSES.map((status) => ({
