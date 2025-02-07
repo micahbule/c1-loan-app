@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -29,8 +27,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateLoanApplication } from "@/app/actions";
-import { LoanApplication } from "@/lib/api";
+import { LoanApplication, updateLoanApplication } from "@/lib/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
   applicantName: z.string().min(2, {
@@ -49,8 +47,26 @@ export default function EditLoanApplicationDialog({
   application: LoanApplication;
   onClose: () => void;
 }) {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+
+  const updateMutation = useMutation({
+    mutationFn: ({
+      id,
+      status,
+      applicantName,
+      requestedAmount,
+    }: Partial<LoanApplication>) =>
+      updateLoanApplication(id as string, {
+        status,
+        applicantName,
+        requestedAmount,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["applications"],
+      });
+    },
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,16 +78,11 @@ export default function EditLoanApplicationDialog({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true);
-    // await updateLoanApplication(
-    //   application.id,
-    //   values.applicantName,
-    //   values.requestedAmount,
-    //   values.status
-    // );
-    setIsSubmitting(false);
+    updateMutation.mutate({
+      id: application.id,
+      ...values,
+    });
     onClose();
-    router.refresh();
   }
 
   return (
@@ -124,9 +135,9 @@ export default function EditLoanApplicationDialog({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Approved">Approved</SelectItem>
-                      <SelectItem value="Rejected">Rejected</SelectItem>
+                      <SelectItem value="PENDING">Pending</SelectItem>
+                      <SelectItem value="APPROVED">Approved</SelectItem>
+                      <SelectItem value="REJECTED">Rejected</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -134,8 +145,10 @@ export default function EditLoanApplicationDialog({
               )}
             />
             <DialogFooter>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Updating..." : "Update Application"}
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending
+                  ? "Updating..."
+                  : "Update Application"}
               </Button>
             </DialogFooter>
           </form>

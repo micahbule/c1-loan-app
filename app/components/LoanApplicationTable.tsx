@@ -54,7 +54,7 @@ export default function LoanApplicationTable() {
   };
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
+    mutationFn: ({ id, status }: Pick<LoanApplication, "id" | "status">) =>
       updateLoanApplication(id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -105,7 +105,13 @@ export default function LoanApplicationTable() {
                 </Select>
               </TableCell>
               <TableCell>
-                <Button variant="outline" className="mr-2" onClick={() => {}}>
+                <Button
+                  variant="outline"
+                  className="mr-2"
+                  onClick={() => {
+                    setEditingApplication(application);
+                  }}
+                >
                   Edit
                 </Button>
                 <Button

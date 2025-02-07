@@ -21,9 +21,9 @@ export default function LoanMetrics() {
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      {metrics.map((metric) => (
+      {metrics.map((metric, index) => (
         <Card
-          key={metric.data?.status}
+          key={metric.data?.status || index}
           className={`border-l-4 ${
             statusColors[metric.data?.status as string]
           }`}

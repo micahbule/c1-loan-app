@@ -18,9 +18,7 @@ type CreateLoanApplication = {
   requestedAmount: number;
 };
 
-type UpdateLoanApplication = {
-  status: string;
-};
+type UpdateLoanApplication = Partial<LoanApplication>;
 
 type LoanQueryParams = {
   status: string;
