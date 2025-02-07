@@ -19,13 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  deleteLoanApplication,
-  type LoanApplication,
-  type LoanStatus,
-} from "@/app/actions";
 import EditLoanApplicationDialog from "./EditLoanApplicationDialog";
-import { getLoanApplications, updateLoanApplication } from "../../lib/api";
+import {
+  getLoanApplications,
+  updateLoanApplication,
+  deleteLoanApplication,
+  LoanApplication,
+} from "../../lib/api";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function LoanApplicationTable() {
@@ -40,9 +40,17 @@ export default function LoanApplicationTable() {
   const [editingApplication, setEditingApplication] =
     useState<LoanApplication | null>(null);
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteLoanApplication(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["applications"],
+      });
+    },
+  });
+
   const handleDelete = async (id: string) => {
-    await deleteLoanApplication(id);
-    router.refresh();
+    deleteMutation.mutate(id);
   };
 
   const updateMutation = useMutation({
@@ -55,7 +63,7 @@ export default function LoanApplicationTable() {
     },
   });
 
-  const handleStatusChange = async (id: string, newStatus: LoanStatus) => {
+  const handleStatusChange = async (id: string, newStatus: string) => {
     const application = applications.find((app) => app.id === id);
     if (application) {
       updateMutation.mutate({ id, status: newStatus });
@@ -82,7 +90,7 @@ export default function LoanApplicationTable() {
               <TableCell>
                 <Select
                   defaultValue={application.status}
-                  onValueChange={(value: LoanStatus) =>
+                  onValueChange={(value: string) =>
                     handleStatusChange(application.id, value)
                   }
                 >

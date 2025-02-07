@@ -1,16 +1,36 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { updateLoanApplication, type LoanApplication } from "@/app/actions"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { updateLoanApplication } from "@/app/actions";
+import { LoanApplication } from "@/lib/api";
 
 const formSchema = z.object({
   applicantName: z.string().min(2, {
@@ -19,18 +39,18 @@ const formSchema = z.object({
   requestedAmount: z.coerce.number().positive({
     message: "Requested amount must be a positive number.",
   }),
-  status: z.enum(["Pending", "Approved", "Rejected"] as const),
-})
+  status: z.string(),
+});
 
 export default function EditLoanApplicationDialog({
   application,
   onClose,
 }: {
-  application: LoanApplication
-  onClose: () => void
+  application: LoanApplication;
+  onClose: () => void;
 }) {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,14 +59,19 @@ export default function EditLoanApplicationDialog({
       requestedAmount: application.requestedAmount,
       status: application.status,
     },
-  })
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true)
-    await updateLoanApplication(application.id, values.applicantName, values.requestedAmount, values.status)
-    setIsSubmitting(false)
-    onClose()
-    router.refresh()
+    setIsSubmitting(true);
+    // await updateLoanApplication(
+    //   application.id,
+    //   values.applicantName,
+    //   values.requestedAmount,
+    //   values.status
+    // );
+    setIsSubmitting(false);
+    onClose();
+    router.refresh();
   }
 
   return (
@@ -89,7 +114,10 @@ export default function EditLoanApplicationDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a status" />
@@ -114,6 +142,5 @@ export default function EditLoanApplicationDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

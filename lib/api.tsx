@@ -49,3 +49,7 @@ export async function updateLoanApplication(
   const response = await client.patch<LoanApplication>(`/loans/${id}`, payload);
   return response.data;
 }
+
+export async function deleteLoanApplication(id: string) {
+  await client.delete(`/loans/${id}`);
+}
