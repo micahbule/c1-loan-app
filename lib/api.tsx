@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 
 const API_URL = "http://localhost:3001";
 
@@ -18,6 +18,10 @@ type CreateLoanApplication = {
   requestedAmount: number;
 };
 
+type UpdateLoanApplication = {
+  status: string;
+};
+
 type LoanQueryParams = {
   status: string;
 };
@@ -35,5 +39,13 @@ export async function getLoanApplications(query?: LoanQueryParams) {
   }
 
   const response = await client.get<LoanApplication[]>(finalUrl);
+  return response.data;
+}
+
+export async function updateLoanApplication(
+  id: string,
+  payload: UpdateLoanApplication
+) {
+  const response = await client.patch<LoanApplication>(`/loans/${id}`, payload);
   return response.data;
 }

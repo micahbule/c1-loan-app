@@ -21,15 +21,15 @@ import {
 } from "@/components/ui/select";
 import {
   deleteLoanApplication,
-  updateLoanApplication,
   type LoanApplication,
   type LoanStatus,
 } from "@/app/actions";
 import EditLoanApplicationDialog from "./EditLoanApplicationDialog";
-import { getLoanApplications } from "../../lib/api";
-import { useQuery } from "@tanstack/react-query";
+import { getLoanApplications, updateLoanApplication } from "../../lib/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function LoanApplicationTable() {
+  const queryClient = useQueryClient();
   const { data: applications } = useQuery({
     queryKey: ["applications"],
     queryFn: () => getLoanApplications(),
@@ -45,16 +45,20 @@ export default function LoanApplicationTable() {
     router.refresh();
   };
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: string }) =>
+      updateLoanApplication(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["applications"],
+      });
+    },
+  });
+
   const handleStatusChange = async (id: string, newStatus: LoanStatus) => {
     const application = applications.find((app) => app.id === id);
     if (application) {
-      await updateLoanApplication(
-        id,
-        application.applicantName,
-        application.requestedAmount,
-        newStatus
-      );
-      router.refresh();
+      updateMutation.mutate({ id, status: newStatus });
     }
   };
 
