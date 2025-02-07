@@ -1,14 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { addLoanApplication } from "../actions"
+import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { addLoanApplication } from "../actions";
+import { useMutation } from "@tanstack/react-query";
+import { createLoanApplication } from "../lib/api";
 
 const formSchema = z.object({
   applicantName: z.string().min(2, {
@@ -17,11 +26,20 @@ const formSchema = z.object({
   requestedAmount: z.coerce.number().positive({
     message: "Requested amount must be a positive number.",
   }),
-})
+});
 
 export default function LoanApplicationForm() {
-  const router = useRouter()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
+  const mutation = useMutation({
+    mutationFn: createLoanApplication,
+    onSuccess: () => {
+      form.reset();
+      router.push("/applications");
+    },
+    onError: () => {
+      alert("Error");
+    },
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -29,14 +47,10 @@ export default function LoanApplicationForm() {
       applicantName: "",
       requestedAmount: 0,
     },
-  })
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsSubmitting(true)
-    await addLoanApplication(values.applicantName, values.requestedAmount)
-    setIsSubmitting(false)
-    form.reset()
-    router.push("/applications")
+    mutation.mutate(values);
   }
 
   return (
@@ -51,7 +65,9 @@ export default function LoanApplicationForm() {
               <FormControl>
                 <Input placeholder="John Doe" {...field} />
               </FormControl>
-              <FormDescription>Enter the full name of the loan applicant.</FormDescription>
+              <FormDescription>
+                Enter the full name of the loan applicant.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -65,16 +81,17 @@ export default function LoanApplicationForm() {
               <FormControl>
                 <Input type="number" placeholder="10000" {...field} />
               </FormControl>
-              <FormDescription>Enter the loan amount requested in dollars.</FormDescription>
+              <FormDescription>
+                Enter the loan amount requested in dollars.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Submitting..." : "Submit Application"}
+        <Button type="submit" disabled={mutation.isPending}>
+          {mutation.isPending ? "Submitting..." : "Submit Application"}
         </Button>
       </form>
     </Form>
-  )
+  );
 }
-

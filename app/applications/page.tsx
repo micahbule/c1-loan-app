@@ -1,14 +1,17 @@
-import { getLoanApplications } from "../actions"
-import LoanApplicationTable from "../components/LoanApplicationTable"
+"use client";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import LoanApplicationTable from "../components/LoanApplicationTable";
+
+const queryClient = new QueryClient();
 
 export default async function ApplicationsPage() {
-  const applications = await getLoanApplications()
-
   return (
-    <div className="space-y-4">
-      <h1 className="text-3xl font-bold">Loan Applications</h1>
-      <LoanApplicationTable applications={applications} />
-    </div>
-  )
+    <QueryClientProvider client={queryClient}>
+      <div className="space-y-4">
+        <h1 className="text-3xl font-bold">Loan Applications</h1>
+        <LoanApplicationTable />
+      </div>
+    </QueryClientProvider>
+  );
 }
-

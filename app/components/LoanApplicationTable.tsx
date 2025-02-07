@@ -1,29 +1,62 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { deleteLoanApplication, updateLoanApplication, type LoanApplication, type LoanStatus } from "@/app/actions"
-import EditLoanApplicationDialog from "./EditLoanApplicationDialog"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  deleteLoanApplication,
+  updateLoanApplication,
+  type LoanApplication,
+  type LoanStatus,
+} from "@/app/actions";
+import EditLoanApplicationDialog from "./EditLoanApplicationDialog";
+import { getLoanApplications } from "../lib/api";
+import { useQuery } from "@tanstack/react-query";
 
-export default function LoanApplicationTable({ applications }: { applications: LoanApplication[] }) {
-  const router = useRouter()
-  const [editingApplication, setEditingApplication] = useState<LoanApplication | null>(null)
+export default function LoanApplicationTable() {
+  const { data: applications } = useQuery({
+    queryKey: ["applications"],
+    queryFn: getLoanApplications,
+    initialData: [],
+  });
+
+  const router = useRouter();
+  const [editingApplication, setEditingApplication] =
+    useState<LoanApplication | null>(null);
 
   const handleDelete = async (id: string) => {
-    await deleteLoanApplication(id)
-    router.refresh()
-  }
+    await deleteLoanApplication(id);
+    router.refresh();
+  };
 
   const handleStatusChange = async (id: string, newStatus: LoanStatus) => {
-    const application = applications.find((app) => app.id === id)
+    const application = applications.find((app) => app.id === id);
     if (application) {
-      await updateLoanApplication(id, application.applicantName, application.requestedAmount, newStatus)
-      router.refresh()
+      await updateLoanApplication(
+        id,
+        application.applicantName,
+        application.requestedAmount,
+        newStatus
+      );
+      router.refresh();
     }
-  }
+  };
 
   return (
     <>
@@ -45,7 +78,9 @@ export default function LoanApplicationTable({ applications }: { applications: L
               <TableCell>
                 <Select
                   defaultValue={application.status}
-                  onValueChange={(value: LoanStatus) => handleStatusChange(application.id, value)}
+                  onValueChange={(value: LoanStatus) =>
+                    handleStatusChange(application.id, value)
+                  }
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Status" />
@@ -58,10 +93,13 @@ export default function LoanApplicationTable({ applications }: { applications: L
                 </Select>
               </TableCell>
               <TableCell>
-                <Button variant="outline" className="mr-2" onClick={() => setEditingApplication(application)}>
+                <Button variant="outline" className="mr-2" onClick={() => {}}>
                   Edit
                 </Button>
-                <Button variant="destructive" onClick={() => handleDelete(application.id)}>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDelete(application.id)}
+                >
                   Delete
                 </Button>
               </TableCell>
@@ -70,9 +108,11 @@ export default function LoanApplicationTable({ applications }: { applications: L
         </TableBody>
       </Table>
       {editingApplication && (
-        <EditLoanApplicationDialog application={editingApplication} onClose={() => setEditingApplication(null)} />
+        <EditLoanApplicationDialog
+          application={editingApplication}
+          onClose={() => setEditingApplication(null)}
+        />
       )}
     </>
-  )
+  );
 }
-
