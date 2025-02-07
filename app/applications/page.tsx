@@ -5,7 +5,7 @@ import LoanApplicationTable from "../components/LoanApplicationTable";
 
 const queryClient = new QueryClient();
 
-export default async function ApplicationsPage() {
+export default function ApplicationsPage() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="space-y-4">
