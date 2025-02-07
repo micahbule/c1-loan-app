@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQueries } from "@tanstack/react-query";
-import { getLoanApplications, LoanApplication } from "@/lib/api";
+import { getLoanApplications } from "@/lib/api";
 import { computeMetric } from "@/lib/utils";
 
 export default function LoanMetrics() {

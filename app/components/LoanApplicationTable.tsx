@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -36,7 +35,6 @@ export default function LoanApplicationTable() {
     initialData: [],
   });
 
-  const router = useRouter();
   const [editingApplication, setEditingApplication] =
     useState<LoanApplication | null>(null);
 
