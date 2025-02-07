@@ -26,13 +26,13 @@ import {
   type LoanStatus,
 } from "@/app/actions";
 import EditLoanApplicationDialog from "./EditLoanApplicationDialog";
-import { getLoanApplications } from "../lib/api";
+import { getLoanApplications } from "../../lib/api";
 import { useQuery } from "@tanstack/react-query";
 
 export default function LoanApplicationTable() {
   const { data: applications } = useQuery({
     queryKey: ["applications"],
-    queryFn: getLoanApplications,
+    queryFn: () => getLoanApplications(),
     initialData: [],
   });
 

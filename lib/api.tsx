@@ -6,7 +6,7 @@ const client = axios.create({
   baseURL: API_URL,
 });
 
-type LoanApplication = CreateLoanApplication & {
+export type LoanApplication = CreateLoanApplication & {
   id: string;
   status: string;
   createdAt: Date;
@@ -18,17 +18,22 @@ type CreateLoanApplication = {
   requestedAmount: number;
 };
 
+type LoanQueryParams = {
+  status: string;
+};
+
 export async function createLoanApplication(payload: CreateLoanApplication) {
-  const response = await client.post<any, AxiosResponse<LoanApplication>>(
-    "/loans",
-    payload
-  );
+  const response = await client.post<LoanApplication>("/loans", payload);
   return response.data;
 }
 
-export async function getLoanApplications() {
-  const response = await client.get<any, AxiosResponse<LoanApplication[]>>(
-    "/loans"
-  );
+export async function getLoanApplications(query?: LoanQueryParams) {
+  let finalUrl = "/loans";
+
+  if (query) {
+    finalUrl += `?${new URLSearchParams(query).toString()}`;
+  }
+
+  const response = await client.get<LoanApplication[]>(finalUrl);
   return response.data;
 }

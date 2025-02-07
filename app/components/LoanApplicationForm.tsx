@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { addLoanApplication } from "../actions";
 import { useMutation } from "@tanstack/react-query";
-import { createLoanApplication } from "../lib/api";
+import { createLoanApplication } from "../../lib/api";
 
 const formSchema = z.object({
   applicantName: z.string().min(2, {
